@@ -3,9 +3,13 @@
 
 	QUnit.module( 'jquery.i18n - $.fn.i18n Tests', {
 		setup: function () {
+			var language = 'localex',
+				languageDef = $.extend( BananaLanguages[ 'default' ], BananaLanguages[ language ] );
+			$.i18n.parser = new BananaMessageParser( languageDef );
 			$.i18n( {
-				locale: 'localex'
+				locale: language
 			} );
+
 		},
 		teardown: function () {
 			$.i18n().destroy();
@@ -279,7 +283,12 @@
 	} );
 
 	QUnit.test( 'Message parse plural tests for Arabic', 17, function ( assert ) {
-		$.i18n();
+		var languageDef = $.extend( BananaLanguages[ 'default' ], BananaLanguages[ 'ar' ] );
+		languageDef.pluralRuleParser = pluralRuleParser;
+		languageDef.language = 'ar';
+		$.i18n( {
+			parser: new BananaMessageParser( languageDef )
+		} );
 		var i18n = $( document ).data( 'i18n' );
 		// Switch to locale locally
 		i18n.locale = 'ar';
@@ -320,16 +329,16 @@
 
 	QUnit.test( 'Test explicit plural forms', 5, function ( assert ) {
 		$.i18n();
-		assert.strictEqual( $.i18n.languages[ 'default' ].convertPlural( 0, [ '0=Explicit Zero', 'Singular', 'Plural' ] ),
+		assert.strictEqual( BananaLanguages[ 'default' ].convertPlural( 0, [ '0=Explicit Zero', 'Singular', 'Plural' ] ),
 			'Explicit Zero', 'Explicit Zero' );
 
-		assert.strictEqual( $.i18n.languages[ 'default' ].convertPlural( 1, [ '0=Explicit Zero', 'Singular', 'Plural', '1=Explicit One' ] ),
+		assert.strictEqual( BananaLanguages[ 'default' ].convertPlural( 1, [ '0=Explicit Zero', 'Singular', 'Plural', '1=Explicit One' ] ),
 			'Explicit One', 'Explicit One' );
 
-		assert.strictEqual( $.i18n.languages[ 'default' ].convertPlural( 1, [ '0=Explicit Zero', 'Singular', 'Plural' ] ),
+		assert.strictEqual( BananaLanguages[ 'default' ].convertPlural( 1, [ '0=Explicit Zero', 'Singular', 'Plural' ] ),
 			'Singular', 'Singular' );
 
-		assert.strictEqual( $.i18n.languages[ 'default' ].convertPlural( 3, [ '0=Explicit Zero', '1=Explicit One', 'Singular', 'Plural' ] ),
+		assert.strictEqual( BananaLanguages[ 'default' ].convertPlural( 3, [ '0=Explicit Zero', '1=Explicit One', 'Singular', 'Plural' ] ),
 			'Plural', 'Plural' );
 		// See https://bugzilla.wikimedia.org/69993
 		assert.strictEqual( $.i18n( 'Found {{PLURAL:$1|$1 results|1=$1 result}}', 1 ), 'Found 1 result', 'Plural message with explicit plural forms, plural form contains placeholder.' );

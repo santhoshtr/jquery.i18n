@@ -16,7 +16,7 @@
 ( function ( $ ) {
 	'use strict';
 
-	var nav, I18N,
+	var nav, I18N, defaultparser,
 		slice = Array.prototype.slice;
 	/**
 	 * @constructor
@@ -75,7 +75,7 @@
 						break;
 					}
 
-					locale = ( $.i18n.fallbacks[i18n.locale] && $.i18n.fallbacks[i18n.locale][fallbackIndex] ) ||
+					locale = ( $.i18n.fallbacks[ i18n.locale ] && $.i18n.fallbacks[ i18n.locale ][ fallbackIndex ] ) ||
 						i18n.options.fallbackLocale;
 					$.i18n.log( 'Trying fallback locale for ' + i18n.locale + ': ' + locale );
 
@@ -142,16 +142,16 @@
 				source = 'i18n/' + $.i18n().locale + '.json';
 				locale = $.i18n().locale;
 			}
-			if ( typeof source === 'string'	&&
+			if ( typeof source === 'string' &&
 				source.split( '.' ).pop() !== 'json'
 			) {
 				// Load specified locale then check for fallbacks when directory is specified in load()
-				sourceMap[locale] = source + '/' + locale + '.json';
-				fallbackLocales = ( $.i18n.fallbacks[locale] || [] )
+				sourceMap[ locale ] = source + '/' + locale + '.json';
+				fallbackLocales = ( $.i18n.fallbacks[ locale ] || [] )
 					.concat( this.options.fallbackLocale );
 				for ( locIndex in fallbackLocales ) {
-					fallbackLocale = fallbackLocales[locIndex];
-					sourceMap[fallbackLocale] = source + '/' + fallbackLocale + '.json';
+					fallbackLocale = fallbackLocales[ locIndex ];
+					sourceMap[ fallbackLocale ] = source + '/' + fallbackLocale + '.json';
 				}
 				return this.load( sourceMap );
 			} else {
@@ -168,15 +168,23 @@
 		 * @return {string}
 		 */
 		parse: function ( key, parameters ) {
-			var message = key.toLocaleString();
-			// FIXME: This changes the state of the I18N object,
-			// should probably not change the 'this.parser' but just
-			// pass it to the parser.
-			this.parser.language = $.i18n.languages[$.i18n().locale] || $.i18n.languages['default'];
+			var message = key.toLocaleString(),
+				parser,
+				languageDef;
+			if ( BananaMessageParser ) {
+				languageDef = $.extend( BananaLanguages[ 'default' ], BananaLanguages[ $.i18n().locale ] );
+				parser = new BananaMessageParser( languageDef );
+			} else {
+				parser = defaultparser;
+				// FIXME: This changes the state of the I18N object,
+				// should probably not change the 'this.parser' but just
+				// pass it to the parser.
+				parser.language = $.i18n.languages[ $.i18n().locale ] || $.i18n.languages[ 'default' ];
+			}
 			if ( message === '' ) {
 				message = key;
 			}
-			return this.parser.parse( message, parameters );
+			return parser.parse( message, parameters );
 		}
 	};
 
@@ -205,7 +213,7 @@
 			String.locale = i18n.locale = options.locale;
 		}
 
-		if ( !i18n ) {
+		if ( !i18n || options ) {
 			i18n = new I18N( options );
 			$.data( document, 'i18n', i18n );
 		}
@@ -257,19 +265,18 @@
 
 	$.i18n.languages = {};
 	$.i18n.messageStore = $.i18n.messageStore || {};
-	$.i18n.parser = {
+	defaultparser = {
 		// The default parser only handles variable substitution
 		parse: function ( message, parameters ) {
 			return message.replace( /\$(\d+)/g, function ( str, match ) {
 				var index = parseInt( match, 10 ) - 1;
-				return parameters[index] !== undefined ? parameters[index] : '$' + match;
+				return parameters[ index ] !== undefined ? parameters[ index ] : '$' + match;
 			} );
-		},
-		emitter: {}
+		}
 	};
 	$.i18n.fallbacks = {};
 	$.i18n.debug = false;
-	$.i18n.log = function ( /* arguments */ ) {
+	$.i18n.log = function ( /* arguments */) {
 		if ( window.console && $.i18n.debug ) {
 			window.console.log.apply( window.console, arguments );
 		}
