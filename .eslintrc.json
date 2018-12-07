@@ -4,6 +4,9 @@
 		"browser": true,
 		"jquery": true
 	},
+	"globals": {
+        "Banana": true
+    },
 	"rules": {
 		"dot-notation": 0
 	}

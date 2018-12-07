@@ -11,7 +11,6 @@ module.exports = function ( grunt ) {
 	grunt.loadNpmTasks( 'grunt-eslint' );
 	grunt.loadNpmTasks( 'grunt-contrib-qunit' );
 	grunt.loadNpmTasks( 'grunt-contrib-connect' );
-	grunt.loadNpmTasks( 'grunt-contrib-watch' );
 
 	grunt.initConfig( {
 		connect: {
@@ -36,13 +35,6 @@ module.exports = function ( grunt ) {
 				'src/**/*.js',
 				'test/**/*.js'
 			]
-		},
-		watch: {
-			files: [
-				'.eslintrc.json',
-				'<%= eslint.main %>'
-			],
-			tasks: 'test'
 		},
 		qunit: {
 			all: {
