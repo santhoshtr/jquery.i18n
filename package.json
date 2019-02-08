@@ -15,7 +15,7 @@
     "email": "santhosh.thottingal@gmail.com"
   },
   "dependencies": {
-    "banana-i18n": "1.0.1"
+    "banana-i18n": "1.0.2"
   },
   "devDependencies": {
     "eslint-config-wikimedia": "0.7.2",
