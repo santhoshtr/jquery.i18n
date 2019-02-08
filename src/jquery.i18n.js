@@ -103,6 +103,11 @@
 		// eslint-disable-next-line no-unused-vars
 		parse: function ( key, parameters ) {
 			return this.banana.i18n.apply( this.banana, arguments );
+		},
+
+		setLocale: function ( locale ) {
+			this.locale = locale;
+			this.banana.setLocale( this.locale );
 		}
 	};
 
